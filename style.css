@@ -1,0 +1,242 @@
+a {
+    font-family: inherit; /* Наследовать шрифт от родителя */
+}
+@font-face {
+    font-family: f_1;
+    src: url(fonts/PTSerif-Regular.ttf);
+}
+@font-face {
+    font-family: f_2;
+    src: url(fonts/1601702404ht.ttf);
+}
+@font-face {
+    font-family: f_3;
+    src: url(fonts/1601702404ht.ttf);
+}
+@font-face {
+    font-family: f_4;
+    src: url(Bebas Neue Cyrillic.ttf);
+}
+@font-face {
+    font-family: f_5;
+    src: url(fonts/TildaSans-Regular.ttf);
+}
+:root{
+    --1:#1A1A1A;
+    --2:#414141;
+    --3:#D4A373;
+    --4:#262626;
+    --5:#A1A1AA ;
+    --6:#dbdbdb;
+    --7:#c3a6899c;
+}
+:root{
+    --im1:url(/images/fon.svg)
+}
+*{
+    transition: filter 0.3s;
+}
+header{
+    display: flex;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    z-index: 1000;
+    background: var(--7);
+    width: 100%;
+    padding: 1%;
+    backdrop-filter: blur(10px);
+    gap: 10px;
+}
+header a {
+    font-family: f_2;
+    font-weight: 600;
+    font-size: 120%;
+    text-decoration: none;
+    color: var(--6);
+}
+header a:hover{
+    filter: invert();
+    
+}
+.hero{
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    justify-content: center;
+    text-align: start;
+    padding: 8%;
+    background-color: var(--3);
+    background-image: url(images/fon.svg);
+    filter: invert();
+    background-position: right;
+    background-repeat: no-repeat;
+    background-size: cover;
+    color: var(--4)    ;
+    font-size: 500%;
+}
+.hero h1{
+    font-weight: 100;
+    margin-bottom: 0px;
+    font-family: f_3;
+    max-width: 800px;
+    padding: 0%;
+}
+.hero a{
+    background: var(--2);
+    max-width: 300px;
+    color: var(--5);
+    text-decoration: none;
+    font-family: f_1;
+    padding: 1%;
+    text-align: center;
+    font-size: 40%;
+    border-radius: 15px;
+    border: #A1A1AA 1px solid;
+}
+.hero a:hover{
+    filter: invert();
+}
+.hero p{
+    font-size: 40%;
+    max-width: 70%;
+    font-family: f_5;
+}
+.general_block_1{
+    padding: 8%;
+    color: var(--2);
+    font-family: f_5;
+    font-size: 150%;
+    display: flex;
+    align-items: center;
+    justify-content: center;    
+}
+.general_block_1 img{
+    width: 50%;
+    height: auto;
+}
+.general_block_1 p, h2{
+    max-width: 80%;
+
+}
+.general_block_2{
+    font-family: f_5;
+    color: var(--2);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.b2_grid{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+.card_b2{
+    display: flex;
+    flex-direction: column;
+    max-width: 40%;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+}
+.card_b2 p, h3{
+    max-width: 60%;
+}
+.card_b2 img{
+    width: 70%;
+    filter: saturate(0.6) contrast(0.8) sepia(0.2) brightness(1.1);;
+}
+.card_b2 a{
+    text-align: center;
+    text-decoration: none;
+    color: var(--6);
+    background: #4478a2;
+    padding: 2%;
+    width: 30%;
+    border-radius: 15px;
+}
+.card_b2 a:hover{
+    filter: invert();
+}
+footer{
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 100px;
+    padding: 10%;
+    background: var(--1);
+    color: var(--6);
+    font-family: f_5;
+    gap: 20px;
+    
+}
+footer a {
+    background: #4478a2;
+    color: var(--4);
+    text-decoration: none;
+    filter: invert();
+    border-radius: 15px;
+    padding: 8px;
+}
+footer a:hover{
+    filter: none;
+}
+.fut_lv1{
+    border: #f3f3f5 1px solid;
+    padding: 5%;
+    display: flex;
+    width: 90%;
+    text-align: center;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+.general_block_3{
+    font-family: f_5;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-top: #1A1A1A solid 1px;
+    margin-top: 50px;
+    padding: 0px;
+}
+.bl_3{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2%;
+    gap: 20px;
+    width: 100%;
+}
+.b_3{
+    display: flex;
+    align-items: center;
+    background: var(--3);
+    padding: 0% 2%;
+    border-radius: 15px;
+    filter: invert();
+    width: 200PX;
+    justify-content: center;
+}
+.general_block_3 img{
+    width: 50px;
+}
+.bl_3 a {
+    text-decoration: none;
+    color: #1A1A1A;
+}
+.b_3:hover{
+    filter: none;
+}
+.general_block_3 h3{
+    margin-top: 80px;
+    width: 100%;
+}
