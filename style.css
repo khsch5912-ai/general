@@ -15,7 +15,7 @@ a {
 }
 @font-face {
     font-family: f_4;
-    src: url(Bebas Neue Cyrillic.ttf);
+    src: url(bb.ttf);
 }
 @font-face {
     font-family: f_5;
@@ -35,6 +35,10 @@ a {
 }
 *{
     transition: filter 0.3s;
+
+}
+body{
+        background: #f0f4de;
 }
 header{
     display: flex;
@@ -206,6 +210,7 @@ footer a:hover{
     border-top: #1A1A1A solid 1px;
     margin-top: 50px;
     padding: 0px;
+
 }
 .bl_3{
     display: flex;
@@ -239,4 +244,325 @@ footer a:hover{
 .general_block_3 h3{
     margin-top: 80px;
     width: 100%;
+}
+.lv1_b3{
+    border-right: 1px solid;
+    display: flex;
+    gap: 16px;
+    padding: 24px;
+
+}
+.lv1_b3 a{
+    color: rgb(23, 23, 23);
+    text-decoration: none;
+}
+.b3{
+    text-align: center; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center;
+    
+}
+.media_block_1{
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.media_block_1 h2{
+    margin-bottom: 0px;
+}
+.media_block_1 p{
+    margin-top: 2px;
+}
+/* ==========================================
+   Стили для тетради заметок
+   ========================================== */
+.notebook-paper {
+    background-color: #fdfdfd;
+    background-image: linear-gradient(#e1e1e1 1px, transparent 1px);
+    background-size: 100% 30px;
+    line-height: 30px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 0 15px;
+}
+
+.notebook-paper textarea {
+    width: 100%;
+    height: 250px;
+    background: transparent;
+    border: none;
+    outline: none;
+    resize: none;
+    line-height: 30px; /* Строки должны совпадать с полосками */
+    font-family: inherit;
+    font-size: 16px;
+    padding: 0;
+    margin: 0;
+    color: #12121a;
+}
+
+.saved-note-display {
+    white-space: pre-wrap;
+    line-height: 30px;
+    background-color: #fdfdfd;
+    background-image: linear-gradient(#e1e1e1 1px, transparent 1px);
+    background-size: 100% 30px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    color: #12121a;
+}
+
+.saved-note-display b, .saved-note-display strong { font-weight: bold; }
+.saved-note-display i, .saved-note-display em { font-style: italic; }
+.saved-note-display .time-link {
+    color: #7c3aed;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+/* Полноэкранный режим */
+#notes-wrapper.fullscreen {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: #12121a;
+    z-index: 9999;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    color: white;
+    border-radius: 0;
+}
+#notes-wrapper.fullscreen .notes-header h3 {
+    color: white;
+}
+#notes-wrapper.fullscreen .notebook-paper {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #fdfdfd;
+}
+#notes-wrapper.fullscreen textarea {
+    flex-grow: 1;
+    height: auto;
+}
+.materials{
+    border-bottom: var(--2) 1px solid;
+    margin-left: 4%;
+    max-width: 50%;
+}
+.materials a {
+    text-decoration: none;
+    color: var(--4);
+}
+.materials a:hover{
+    color: #180026;
+}
+.materials h3{
+}
+.materials p{
+}
+#page-book{
+    font-family: f_5;
+}
+#page-book h2:hover{
+    background-color: #3d4519;
+}
+#nav-back-container a{
+    color: var(--2);
+}
+/* Стили для тетради (ТОЛЬКО для ввода) */
+.notebook-paper {
+    background-color: #fdfdfd;
+    background-image: linear-gradient(#e1e1e1 1px, transparent 1px);
+    background-size: 100% 30px;
+    line-height: 30px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 0 15px;
+}
+
+.notebook-paper textarea {
+    width: 100%;
+    height: 250px;
+    background: transparent;
+    border: none;
+    outline: none;
+    resize: none;
+    line-height: 30px;
+    font-family: inherit;
+    font-size: 16px;
+    padding: 0;
+    margin: 0;
+    color: #12121a;
+}
+
+/* Сохраненные заметки (БЕЗ линий, просто текст) */
+.saved-note-display {
+    white-space: pre-wrap;
+    line-height: 1.6;
+    font-size: 16px;
+    color: #e8e8f0; /* Светлый текст для темного фона */
+    background: #1a1a26;
+    border: 1px solid #2a2a3d;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 10px;
+}
+
+.saved-note-display b, .saved-note-display strong { font-weight: bold; color: #fff; }
+.saved-note-display i, .saved-note-display em { font-style: italic; color: #ccc; }
+.saved-note-display .time-link {
+    color: #7c3aed;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+/* Стиль для summary (стрелочка) */
+summary::-webkit-details-marker { display: none; }
+summary { list-style: none; }
+summary::before { content: '➕ '; }
+details[open] summary::before { content: '➖ '; }
+
+/* Полноэкранный режим */
+#notes-wrapper.fullscreen {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: #12121a;
+    z-index: 9999;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+#notes-wrapper.fullscreen .notebook-paper {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #fdfdfd;
+}
+#notes-wrapper.fullscreen textarea {
+    flex-grow: 1;
+    height: 60vh;
+}
+#notes-wrapper.fullscreen summary {
+    color: white;
+}
+.saved-note-display {
+    white-space: pre-wrap;
+    word-wrap: break-word;       /* Переносит длинные слова */
+    overflow-wrap: break-word;   /* Современный аналог */
+    line-height: 1.6;
+    font-size: 16px;
+    color: #e8e8f0;
+    background: #12121a;
+    border-radius: 6px;
+    padding: 15px;
+    margin-top: 10px;
+    max-width: 100%;             /* Ограничивает ширину родителем */
+    box-sizing: border-box;      /* Чтобы padding не расширял блок */
+}
+/* ==========================================
+   Кастомный аудиоплеер
+   ========================================== */
+.custom-audio-player {
+    border: 1px solid #2a2a3d;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Прогресс-бар */
+.player-progress-container {
+    width: 100%;
+    height: 8px;
+    background: #363636;
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.player-progress-bar {
+    height: 100%;
+    width: 0%;
+    background: #3c3c3c;
+    border-radius: 4px;
+    transition: width 0.1s linear;
+}
+
+/* Контролы */
+.player-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+/* Кнопки */
+.player-btn {
+    background: transparent;
+    border: none;
+    color: #8a8aa0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.player-btn:hover {
+    color: #323232;
+    background: rgba(13, 13, 13, 0.015);
+}
+
+.player-btn.play-btn {
+    background: #272727;
+    color: white;
+    width: 56px;
+    height: 56px;
+    text-align: center;
+}
+
+.player-btn.play-btn:hover {
+    background: #1c1b1f;
+    transform: scale(1.05);
+}
+
+/* Время */
+.player-time {
+    font-variant-numeric: tabular-nums;
+    font-size: 14px;
+    color: #8a8aa0;
+    min-width: 90px;
+    text-align: center;
+}
+
+/* Скорость */
+.player-speed {
+    background: #12121a;
+    color: #e8e8f0;
+    border: 1px solid #2a2a3d;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    outline: none;
+}
+
+.player-speed:focus {
+    border-color: #1a191b;
 }

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Медиатека</title>
+    <!-- Твои стили -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="adaptive.css">
+    <style>
+        
+@font-face {
+    font-family: f_1;
+    src: url(fonts/PTSerif-Regular.ttf);
+}
+@font-face {
+    font-family: f_2;
+    src: url(fonts/1601702404ht.ttf);
+}
+@font-face {
+    font-family: f_3;
+    src: url(fonts/1601702404ht.ttf);
+}
+@font-face {
+    font-family: f_4;
+    src: url(bb.ttf);
+}
+@font-face {
+    font-family: f_5;
+    src: url(fonts/TildaSans-Regular.ttf);
+}
+
+h2, p, h3{
+    font-family: f_5;
+    font-size: 110%;
+}
+footer h2{
+    font-size: 200%;
+}
+footer a{
+    font-size: 100%;
+}
+header{
+    font-family: f_4;
+}
+    </style>
+</head>
+<body>
+    <header id="main-header">
+        <a style="font-family: f_4; font-weight: 100;" href="index.html">Главная</a>
+        <a style="font-family: f_4; font-weight: 100;" href="media.html">Медиатека</a>
+        <a style="font-family: f_4; font-weight: 100;" href="">О нас</a>
+    </header>
+
+    <main>
+        <!-- ЕДИНАЯ КНОПКА НАЗАД -->
+        <div id="nav-back-container" style="display: none; margin-bottom: 20px;">
+            <a href="#" id="nav-back-btn" style="color: #403d45; text-decoration: none; font-size: 18px; font-weight: bold;">← Назад</a>
+        </div>
+
+        <!-- СТРАНИЦА 1: ГЛАВНАЯ МЕДИАТЕКИ -->
+        <div id="page-home">
+            <div class="hero" style="filter: sepia();">
+                <h1 style="max-width: 100%;">Media Library</h1>
+            </div>
+            <div class="media_block_1">
+                <h2>Здесь вы найдете все аудиокниги</h2>
+            </div>
+            <div class="materials" id="books-container">
+                <p>Загрузка книг...</p>
+            </div>
+        </div>
+
+        <!-- СТРАНИЦА 2: СПИСОК ЧАСТЕЙ КНИГИ -->
+        <div id="page-book" style="display: none;">
+            <div class="media_block_1">
+                <h1 id="book-title-display">Название книги</h1>
+                <p id="book-author-display">Автор</p>
+            </div>
+            <div class="materials" id="lessons-container"></div>
+        </div>
+
+        <!-- СТРАНИЦА 3: ПЛЕЕР И ЗАМЕТКИ -->
+        <div id="page-lesson" style="display: none; margin: 0 auto; max-width: 700px;">
+            <div class="media_block_1">
+                <h2 id="lesson-book-title">Название книги</h2>
+                <h3 id="lesson-title-display">Название части</h3>
+            </div>
+            
+<!-- КАСТОМНЫЙ АУДИОПЛЕЕР -->
+<div class="custom-audio-player" id="custom-player">
+    <!-- Скрытый оригинальный тег audio (он будет работать в фоне) -->
+    <audio id="audio-player"></audio>
+
+    <!-- Прогресс-бар -->
+    <div class="player-progress-container" id="progress-container">
+        <div class="player-progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="player-controls">
+        <!-- Кнопка Назад на 15 сек -->
+        <button class="player-btn" id="btn-rewind" title="Назад 15 сек">
+            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg>
+        </button>
+
+        <!-- Кнопка Play/Pause -->
+        <button class="player-btn play-btn" id="btn-play-pause" title="Играть">
+            <svg id="icon-play" viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            <svg id="icon-pause" viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+        </button>
+
+        <!-- Кнопка Вперед на 15 сек -->
+        <button class="player-btn" id="btn-forward" title="Вперед 15 сек">
+            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M13 17l5-5-5-5M6 17l5-5-5-5"/></svg>
+        </button>
+
+        <!-- Время -->
+        <div class="player-time">
+            <span id="time-current">0:00</span> / <span id="time-total">0:00</span>
+        </div>
+
+        <!-- Скорость -->
+        <select class="player-speed" id="speed-select">
+            <option value="0.75">0.75x</option>
+            <option value="1" selected>1x</option>
+            <option value="1.25">1.25x</option>
+            <option value="1.5">1.5x</option>
+            <option value="2">2x</option>
+        </select>
+    </div>
+</div>
+
+            <!-- БЛОК ЗАМЕТОК -->
+            <div id="notes-wrapper" class="notes-wrapper" style="margin-top: 20px;">
+                
+                <!-- РЕДАКТОР (ВСЕГДА ОТКРЫТ) -->
+                <div style="margin-bottom: 20px;  border: 1px solid #2a2a3d00; border-radius: 8px; padding: 15px;">
+                    <h3 style="color: #3b3b3b; margin-top: 0;">Мои заметки</h3>
+                    
+                    <div class="toolbar" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
+                        <button id="btn-insert-time" style="cursor:pointer; padding: 6px 12px; font-weight: bold;">⏱ Таймкод</button>
+                        <button onclick="wrapText('**', '**')" style="cursor:pointer; font-weight: bold; padding: 6px 12px;">B</button>
+                        <button onclick="wrapText('*', '*')" style="cursor:pointer; font-style: italic; padding: 6px 12px;">I</button>
+                        <select id="font-selector" style="padding: 6px; border-radius: 4px; color: black;">
+                            <option value="sans-serif">Шрифт: Обычный</option>
+                            <option value="serif">Шрифт: С засечками</option>
+                            <option value="monospace">Шрифт: Моноширинный</option>
+                        </select>
+                        <button id="btn-fullscreen-note" style="cursor:pointer; padding: 6px 12px; background: #2a2a3d; color: white; border: none; border-radius: 4px; margin-left: auto;">⛶ На весь экран</button>
+                    </div>
+
+                    <!-- Тетрадь с полосками -->
+                    <div class="notebook-paper" id="notebook-paper">
+                        <textarea id="note-text" placeholder="Пишите заметки... Выделите текст и нажмите B или I."></textarea>
+                    </div>
+                    
+                    <div style="margin-top: 15px; display: flex; gap: 10px;">
+                        <button id="btn-save-note" style="cursor:pointer; padding: 8px 15px; background: #353536; color: white; border: none; border-radius: 4px; font-weight: bold;">Сохранить</button>
+                        <button id="btn-export-note" style="cursor:pointer; padding: 8px 15px;">Экспорт в .txt</button>
+                        <button id="btn-clear-note" style="cursor:pointer; padding: 8px 15px; background: #5c2222; color: #d5d5d5;">Очистить</button>
+                    </div>
+                </div>
+
+                <!-- СОХРАНЕННЫЕ ЗАМЕТКИ (СВОРАЧИВАЕМЫЕ) -->
+                <div id="saved-notes-container" style="display: none;">
+                    <details style=" border: 1px solid #232324; border-radius: 8px; padding: 15px; margin: 0 auto; max-width: 700px;">
+                        <summary style=" margin: 0 auto; max-width: 700px; cursor: pointer; font-size: 18px; font-weight: bold; color: #2c2b2c; outline: none; user-select: none;">
+                             Посмотреть сохраненные заметки
+                        </summary>
+                        <div style="margin-top: 15px;">
+                            <div id="saved-note-display" class="saved-note-display"></div>
+                        </div>
+                    </details>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer id="main-footer">
+        <div class="fut_lv1">
+            <div style="display: flex; align-items: center; justify-content: center;">
+                <h2 style="text-align: center; width: 100%;">Остались вопросы?</h2>
+            </div>
+            <div class="fut" style="font-size: 160%;">
+                <a href="https://t.me/hanbaly_bot"> Написать в Telegram-бот</a>
+                <a href="https://t.me/khanabilya_0">Перейти в Telegram-канал</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
