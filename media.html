@@ -43,13 +43,15 @@ footer a{
 header{
     font-family: f_4;
 }
+#book-title-display{
+    border-bottom: 1px solid;
+}
     </style>
 </head>
 <body>
     <header id="main-header">
         <a style="font-family: f_4; font-weight: 100;" href="index.html">Главная</a>
         <a style="font-family: f_4; font-weight: 100;" href="media.html">Медиатека</a>
-        <a style="font-family: f_4; font-weight: 100;" href="">О нас</a>
     </header>
 
     <main>
@@ -60,11 +62,12 @@ header{
 
         <!-- СТРАНИЦА 1: ГЛАВНАЯ МЕДИАТЕКИ -->
         <div id="page-home">
-            <div class="hero" style="filter: sepia();">
+            <div class="hero" id="heroMEDIA" style="filter: sepia();">
                 <h1 style="max-width: 100%;">Media Library</h1>
             </div>
             <div class="media_block_1">
                 <h2>Здесь вы найдете все аудиокниги</h2>
+                <p>(Используйте VPN если возникли трудности с загрузкой)</p>
             </div>
             <div class="materials" id="books-container">
                 <p>Загрузка книг...</p>
@@ -72,9 +75,9 @@ header{
         </div>
 
         <!-- СТРАНИЦА 2: СПИСОК ЧАСТЕЙ КНИГИ -->
-        <div id="page-book" style="display: none;">
+        <div id="page-book" style="display: none; max-width: 700px; margin: 0 auto;;">
             <div class="media_block_1">
-                <h1 id="book-title-display">Название книги</h1>
+                <h1 id="book-title-display" style="border-bottom: none;">Название книги</h1>
                 <p id="book-author-display">Автор</p>
             </div>
             <div class="materials" id="lessons-container"></div>
@@ -84,7 +87,7 @@ header{
         <div id="page-lesson" style="display: none; margin: 0 auto; max-width: 700px;">
             <div class="media_block_1">
                 <h2 id="lesson-book-title">Название книги</h2>
-                <h3 id="lesson-title-display">Название части</h3>
+                <h3 id="lesson-title-display" style="border-bottom: none;">Название части</h3>
             </div>
             
 <!-- КАСТОМНЫЙ АУДИОПЛЕЕР -->
@@ -93,9 +96,12 @@ header{
     <audio id="audio-player"></audio>
 
     <!-- Прогресс-бар -->
-    <div class="player-progress-container" id="progress-container">
-        <div class="player-progress-bar" id="progress-bar"></div>
+<div class="player-progress-container" id="progress-container">
+    <div class="player-progress-bar" id="progress-bar">
+        <!-- Кружок-ползунок -->
+        <div class="player-thumb" id="player-thumb"></div>
     </div>
+</div>
 
     <div class="player-controls">
         <!-- Кнопка Назад на 15 сек -->

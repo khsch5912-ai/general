@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('btn-export-note').onclick = downloadNote;
         document.getElementById('btn-clear-note').onclick = clearNote;
         document.getElementById('btn-insert-time').onclick = insertTimecode;
-        
         // Кнопки форматирования
         document.getElementById('btn-fullscreen-note').onclick = toggleFullscreen;
         document.getElementById('font-selector').onchange = (e) => {
@@ -33,7 +32,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         router(); 
 
     } catch (error) {
-        document.getElementById('books-container').innerHTML = `<p style="color:red">Ошибка загрузки: ${error.message}. Проверьте, проснулся ли сервер Render.</p>`;
+        document.getElementById('books-container').innerHTML = `<p style="color:red">Ошибка загрузки: ${error.message}. Попробуйте использовать VPN.</p>`;
     }
 });
 
@@ -103,13 +102,14 @@ function renderBooksList() {
     
     Object.entries(globalData.books).forEach(([title, data], index) => {
         html += `
+        <a href="#book/${index}">
             <div class="book">
-                <a href="#book/${index}">
+                    <img src="images/over_ear_headphones_falt_style.svg" alt="">
                     <h3>${title}</h3>
                     <p>${data.author}</p>
                     <p>Частей: ${data.lessons.length}</p>
-                </a>
             </div>
+        </a>
         `;
     });
     container.innerHTML = html || '<p>Пока нет книг.</p>';
@@ -133,7 +133,7 @@ function renderBookDetails(bookIndex) {
         html += `
             <div class="book">
                 <a href="#book/${bookIndex}/lesson/${realIndex}">
-                    <h3>Урок ${lesson.part}: ${lesson.title}</h3>
+                    <h3 style="border-bottom:none; text-aligin:center;">Урок ${lesson.part}: ${lesson.title}</h3>
                 </a>
             </div>
         `;
@@ -294,13 +294,18 @@ function formatNoteForDisplay(text) {
 
 function jumpToTime(timeStr) {
     const player = document.getElementById('audio-player');
+    if (!player) return;
+
     const parts = timeStr.split(':');
     const seconds = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+    
     player.currentTime = seconds;
+    
+    // Безопасный запуск воспроизведения
     const p = player.play();
     if (p && typeof p.catch === 'function') {
         p.catch(err => {
-            if (err.name !== 'AbortError') console.warn('play() failed:', err);
+            if (err.name !== 'AbortError') console.warn('Ошибка воспроизведения:', err);
         });
     }
 }
@@ -333,16 +338,15 @@ function initAudioPlayer() {
     const iconPause = document.getElementById('icon-pause');
     const progressContainer = document.getElementById('progress-container');
     const progressBar = document.getElementById('progress-bar');
+    const thumb = document.getElementById('player-thumb');
     const timeCurrent = document.getElementById('time-current');
     const timeTotal = document.getElementById('time-total');
     const btnRewind = document.getElementById('btn-rewind');
     const btnForward = document.getElementById('btn-forward');
     const speedSelect = document.getElementById('speed-select');
+    const playerWrapper = document.getElementById('custom-player');
 
-    if (!audio || !playBtn) {
-        console.warn('Элементы плеера не найдены — проверь HTML-разметку.');
-        return;
-    }
+    if (!audio || !playBtn) return;
 
     const formatAudioTime = (seconds) => {
         if (isNaN(seconds)) return "0:00";
@@ -351,19 +355,16 @@ function initAudioPlayer() {
         return `${m}:${s}`;
     };
 
-    // Безопасный play() — гасим AbortError
     const safePlay = () => {
         const p = audio.play();
         if (p && typeof p.catch === 'function') {
-            p.catch(err => {
-                if (err.name !== 'AbortError') console.warn('play() failed:', err);
-            });
+            p.catch(err => { if (err.name !== 'AbortError') console.warn(err); });
         }
     };
 
+    // Play / Pause
     playBtn.addEventListener('click', () => {
-        if (audio.paused) safePlay();
-        else audio.pause();
+        if (audio.paused) safePlay(); else audio.pause();
     });
 
     audio.addEventListener('play', () => {
@@ -375,6 +376,7 @@ function initAudioPlayer() {
         iconPause.style.display = 'none';
     });
 
+    // Обновление прогресса
     audio.addEventListener('timeupdate', () => {
         if (!audio.duration) return;
         const percent = (audio.currentTime / audio.duration) * 100;
@@ -384,40 +386,75 @@ function initAudioPlayer() {
 
     audio.addEventListener('loadedmetadata', () => {
         timeTotal.innerText = formatAudioTime(audio.duration);
-        audio.playbackRate = parseFloat(speedSelect.value);
     });
 
-    audio.addEventListener('error', () => {
-        const src = audio.currentSrc || audio.src;
-        console.error('Ошибка загрузки аудио. src =', src, 'code =', audio.error && audio.error.code);
-        timeTotal.innerText = '0:00';
-    });
+    // --- ЛОГИКА ПЕРЕТАСКИВАНИЯ ПОЛЗУНКА (DRAG) ---
+    let isDragging = false;
 
-    progressContainer.addEventListener('click', (e) => {
+    const updateProgress = (clientX) => {
         const rect = progressContainer.getBoundingClientRect();
-        const pos = (e.clientX - rect.left) / rect.width;
-        if (audio.duration) audio.currentTime = pos * audio.duration;
+        let pos = (clientX - rect.left) / rect.width;
+        pos = Math.max(0, Math.min(1, pos)); // Ограничиваем от 0 до 1
+        
+        if (audio.duration) {
+            audio.currentTime = pos * audio.duration;
+            progressBar.style.width = `${pos * 100}%`;
+            timeCurrent.innerText = formatAudioTime(audio.currentTime);
+        }
+    };
+
+    progressContainer.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        playerWrapper.classList.add('dragging');
+        updateProgress(e.clientX);
     });
 
+    document.addEventListener('mousemove', (e) => {
+        if (isDragging) updateProgress(e.clientX);
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (isDragging) {
+            isDragging = false;
+            playerWrapper.classList.remove('dragging');
+        }
+    });
+
+    // Поддержка тач-экранов (мобилки)
+    progressContainer.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        playerWrapper.classList.add('dragging');
+        updateProgress(e.touches[0].clientX);
+    });
+
+    document.addEventListener('touchmove', (e) => {
+        if (isDragging) {
+            updateProgress(e.touches[0].clientX);
+            e.preventDefault(); // Запрещаем скролл страницы при перемотке
+        }
+    }, { passive: false });
+
+    document.addEventListener('touchend', () => {
+        if (isDragging) {
+            isDragging = false;
+            playerWrapper.classList.remove('dragging');
+        }
+    });
+
+    // Кнопки +-15 сек
     btnRewind.addEventListener('click', () => {
         audio.currentTime = Math.max(0, audio.currentTime - 15);
     });
-
     btnForward.addEventListener('click', () => {
         audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + 15);
     });
 
+    // Скорость
     speedSelect.addEventListener('change', () => {
         audio.playbackRate = parseFloat(speedSelect.value);
     });
 
-    audio.addEventListener('ended', () => {
-        iconPlay.style.display = 'block';
-        iconPause.style.display = 'none';
-        progressBar.style.width = '0%';
-        timeCurrent.innerText = '0:00';
-    });
-
+    // Горячие клавиши (пробел, стрелки)
     document.addEventListener('keydown', (e) => {
         if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
 

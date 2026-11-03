@@ -113,4 +113,11 @@
     #page-book{
         font-size: 150%;
     }
+    #heroMEDIA h1{
+        line-height: 60px;
+        max-width: 70% !important;
+    }
+    .book img{
+        width: 10%;
+    }
 }
