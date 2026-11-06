@@ -2,198 +2,151 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Медиатека</title>
-    <!-- Твои стили -->
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="adaptive.css">
-    <style>
-        
-@font-face {
-    font-family: f_1;
-    src: url(fonts/PTSerif-Regular.ttf);
-}
-@font-face {
-    font-family: f_2;
-    src: url(fonts/1601702404ht.ttf);
-}
-@font-face {
-    font-family: f_3;
-    src: url(fonts/1601702404ht.ttf);
-}
-@font-face {
-    font-family: f_4;
-    src: url(bb.ttf);
-}
-@font-face {
-    font-family: f_5;
-    src: url(fonts/TildaSans-Regular.ttf);
-}
-
-h2, p, h3{
-    font-family: f_5;
-    font-size: 110%;
-}
-footer h2{
-    font-size: 200%;
-}
-footer a{
-    font-size: 100%;
-}
-header{
-    font-family: f_4;
-}
-#book-title-display{
-    border-bottom: 1px solid;
-}
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="color-scheme" content="light">
+    <title>Медиатека — Khanbaliya</title>
+    <link rel="shortcut icon" href="images/Круглая-каллиграфическая-печать-Ханбалитской-школы.ico" type="image/x-icon">
+    <link rel="stylesheet" href="media.css">
 </head>
-<body>
-    <header id="main-header">
-        <a style="font-family: f_4; font-weight: 100;" href="index.html">Главная</a>
-        <a style="font-family: f_4; font-weight: 100;" href="media.html">Медиатека</a>
-    </header>
+<body data-view="home">
 
-    <main>
-        <!-- ЕДИНАЯ КНОПКА НАЗАД -->
-        <div id="nav-back-container" style="display: none; margin-bottom: 20px;">
-            <a href="#" id="nav-back-btn" style="color: #403d45; text-decoration: none; font-size: 18px; font-weight: bold;">← Назад</a>
+<header class="topbar">
+    <a class="brand" href="index.html">Khanbaliya</a>
+    <nav>
+        <a href="index.html">Главная</a>
+        <a href="#" class="active">Медиатека</a>
+    </nav>
+</header>
+
+<main id="app">
+
+    <!-- Загрузка / ошибка -->
+    <section id="boot" class="boot" aria-live="polite">
+        <div class="spinner" id="boot-spinner"></div>
+        <p id="boot-text">Загружаем уроки…</p>
+        <button id="boot-retry" class="btn" hidden>Повторить</button>
+    </section>
+
+    <!-- ГЛАВНАЯ: книги -->
+    <section id="view-home" hidden>
+        <div class="hero">
+            <h1>Media Library</h1>
+            <p>Аудиоуроки по книгам ханбалитского фикха</p>
         </div>
+        <div id="continue"></div>
+        <label class="search">
+            <span data-icon="search"></span>
+            <input id="search" type="search" placeholder="Найти книгу или урок" autocomplete="off">
+        </label>
+        <div id="books" class="grid"></div>
+        <div id="hits"></div>
+        <p class="note-vpn">Если аудио не загружается — попробуйте VPN.</p>
+    </section>
 
-        <!-- СТРАНИЦА 1: ГЛАВНАЯ МЕДИАТЕКИ -->
-        <div id="page-home">
-            <div class="hero" id="heroMEDIA" style="filter: sepia();">
-                <h1 style="max-width: 100%;">Media Library</h1>
+    <!-- КНИГА: список частей -->
+    <section id="view-book" hidden>
+        <a class="back" href="#"><span data-icon="chevron-left"></span>Все книги</a>
+        <div id="book-head" class="book-head"></div>
+        <label class="search" id="book-search-wrap" hidden>
+            <span data-icon="search"></span>
+            <input id="book-search" type="search" placeholder="Найти часть" autocomplete="off">
+        </label>
+        <div id="book-lessons" class="list"></div>
+    </section>
+
+    <!-- УРОК: плеер + заметки -->
+    <section id="view-lesson" hidden>
+        <a class="back" id="lesson-back" href="#"><span data-icon="chevron-left"></span><span id="lesson-back-text">Назад</span></a>
+        <div class="lesson-grid">
+
+            <div class="player card">
+                <div class="cover cover--lg" id="lp-cover"><span id="lp-letter"></span></div>
+                <div class="now">
+                    <div class="eyebrow" id="lp-eyebrow"></div>
+                    <h1 id="lp-title"></h1>
+                    <div class="muted" id="lp-book"></div>
+                </div>
+
+                <div class="seekrow">
+                    <input id="seek" type="range" min="0" max="0" step="any" value="0" aria-label="Перемотка">
+                    <div class="times"><span id="t-cur">0:00</span><span id="t-dur">0:00</span></div>
+                </div>
+
+                <div class="transport">
+                    <button id="btn-prev" class="ic" aria-label="Предыдущая часть" title="Предыдущая часть"><span data-icon="prev"></span></button>
+                    <button id="btn-back" class="ic" aria-label="Назад на 15 секунд" title="Назад 15 с"><span data-icon="back15"></span></button>
+                    <button id="btn-play" class="play" aria-label="Играть"><span class="i-play" data-icon="play"></span><span class="i-pause" data-icon="pause"></span></button>
+                    <button id="btn-fwd" class="ic" aria-label="Вперёд на 15 секунд" title="Вперёд 15 с"><span data-icon="fwd15"></span></button>
+                    <button id="btn-next" class="ic" aria-label="Следующая часть" title="Следующая часть"><span data-icon="next"></span></button>
+                </div>
+
+                <div class="chips">
+                    <button id="btn-speed" class="chip" title="Скорость">1×</button>
+                    <button id="btn-sleep" class="chip" title="Таймер сна"><span data-icon="moon"></span><span id="sleep-label">Таймер сна</span></button>
+                    <button id="btn-auto" class="chip" aria-pressed="true" title="Автоматически включать следующую часть">Авто-следующая</button>
+                </div>
             </div>
-            <div class="media_block_1">
-                <h2>Здесь вы найдете все аудиокниги</h2>
-                <p>(Используйте VPN если возникли трудности с загрузкой)</p>
-            </div>
-            <div class="materials" id="books-container">
-                <p>Загрузка книг...</p>
-            </div>
-        </div>
 
-        <!-- СТРАНИЦА 2: СПИСОК ЧАСТЕЙ КНИГИ -->
-        <div id="page-book" style="display: none; max-width: 700px; margin: 0 auto;;">
-            <div class="media_block_1">
-                <h1 id="book-title-display" style="border-bottom: none;">Название книги</h1>
-                <p id="book-author-display">Автор</p>
-            </div>
-            <div class="materials" id="lessons-container"></div>
-        </div>
+            <div class="side card">
+                <div class="tabs" role="tablist">
+                    <button role="tab" data-tab="notes" aria-selected="true">Заметки</button>
+                    <button role="tab" data-tab="parts" aria-selected="false">Части</button>
+                </div>
 
-        <!-- СТРАНИЦА 3: ПЛЕЕР И ЗАМЕТКИ -->
-        <div id="page-lesson" style="display: none; margin: 0 auto; max-width: 700px;">
-            <div class="media_block_1">
-                <h2 id="lesson-book-title">Название книги</h2>
-                <h3 id="lesson-title-display" style="border-bottom: none;">Название части</h3>
-            </div>
-            
-<!-- КАСТОМНЫЙ АУДИОПЛЕЕР -->
-<div class="custom-audio-player" id="custom-player">
-    <!-- Скрытый оригинальный тег audio (он будет работать в фоне) -->
-    <audio id="audio-player"></audio>
-
-    <!-- Прогресс-бар -->
-<div class="player-progress-container" id="progress-container">
-    <div class="player-progress-bar" id="progress-bar">
-        <!-- Кружок-ползунок -->
-        <div class="player-thumb" id="player-thumb"></div>
-    </div>
-</div>
-
-    <div class="player-controls">
-        <!-- Кнопка Назад на 15 сек -->
-        <button class="player-btn" id="btn-rewind" title="Назад 15 сек">
-            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg>
-        </button>
-
-        <!-- Кнопка Play/Pause -->
-        <button class="player-btn play-btn" id="btn-play-pause" title="Играть">
-            <svg id="icon-play" viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-            <svg id="icon-pause" viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
-        </button>
-
-        <!-- Кнопка Вперед на 15 сек -->
-        <button class="player-btn" id="btn-forward" title="Вперед 15 сек">
-            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M13 17l5-5-5-5M6 17l5-5-5-5"/></svg>
-        </button>
-
-        <!-- Время -->
-        <div class="player-time">
-            <span id="time-current">0:00</span> / <span id="time-total">0:00</span>
-        </div>
-
-        <!-- Скорость -->
-        <select class="player-speed" id="speed-select">
-            <option value="0.75">0.75x</option>
-            <option value="1" selected>1x</option>
-            <option value="1.25">1.25x</option>
-            <option value="1.5">1.5x</option>
-            <option value="2">2x</option>
-        </select>
-    </div>
-</div>
-
-            <!-- БЛОК ЗАМЕТОК -->
-            <div id="notes-wrapper" class="notes-wrapper" style="margin-top: 20px;">
-                
-                <!-- РЕДАКТОР (ВСЕГДА ОТКРЫТ) -->
-                <div style="margin-bottom: 20px;  border: 1px solid #2a2a3d00; border-radius: 8px; padding: 15px;">
-                    <h3 style="color: #3b3b3b; margin-top: 0;">Мои заметки</h3>
-                    
-                    <div class="toolbar" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
-                        <button id="btn-insert-time" style="cursor:pointer; padding: 6px 12px; font-weight: bold;">⏱ Таймкод</button>
-                        <button onclick="wrapText('**', '**')" style="cursor:pointer; font-weight: bold; padding: 6px 12px;">B</button>
-                        <button onclick="wrapText('*', '*')" style="cursor:pointer; font-style: italic; padding: 6px 12px;">I</button>
-                        <select id="font-selector" style="padding: 6px; border-radius: 4px; color: black;">
-                            <option value="sans-serif">Шрифт: Обычный</option>
-                            <option value="serif">Шрифт: С засечками</option>
-                            <option value="monospace">Шрифт: Моноширинный</option>
+                <div class="panel" data-panel="notes">
+                    <div class="note-tools">
+                        <button id="btn-time" class="chip" title="Вставить текущее время"><span data-icon="clock"></span>Таймкод</button>
+                        <button id="btn-bold" class="chip" aria-label="Жирный"><b>B</b></button>
+                        <button id="btn-italic" class="chip" aria-label="Курсив"><i>I</i></button>
+                        <select id="font-select" aria-label="Шрифт заметок">
+                            <option value="'Tilda', system-ui, sans-serif">Обычный</option>
+                            <option value="Georgia, 'Times New Roman', serif">С засечками</option>
+                            <option value="ui-monospace, Menlo, Consolas, monospace">Моноширинный</option>
                         </select>
-                        <button id="btn-fullscreen-note" style="cursor:pointer; padding: 6px 12px; background: #2a2a3d; color: white; border: none; border-radius: 4px; margin-left: auto;">⛶ На весь экран</button>
                     </div>
-
-                    <!-- Тетрадь с полосками -->
-                    <div class="notebook-paper" id="notebook-paper">
-                        <textarea id="note-text" placeholder="Пишите заметки... Выделите текст и нажмите B или I."></textarea>
+                    <textarea id="note-text" placeholder="Пишите заметки по ходу урока. Таймкод привязывает мысль к моменту в записи."></textarea>
+                    <div class="note-foot">
+                        <span id="note-status" class="muted"></span>
+                        <span class="spacer"></span>
+                        <button id="btn-export" class="chip"><span data-icon="download"></span>Экспорт .txt</button>
+                        <button id="btn-clear" class="chip danger"><span data-icon="trash"></span>Очистить</button>
                     </div>
-                    
-                    <div style="margin-top: 15px; display: flex; gap: 10px;">
-                        <button id="btn-save-note" style="cursor:pointer; padding: 8px 15px; background: #353536; color: white; border: none; border-radius: 4px; font-weight: bold;">Сохранить</button>
-                        <button id="btn-export-note" style="cursor:pointer; padding: 8px 15px;">Экспорт в .txt</button>
-                        <button id="btn-clear-note" style="cursor:pointer; padding: 8px 15px; background: #5c2222; color: #d5d5d5;">Очистить</button>
+                    <div id="note-preview-wrap" hidden>
+                        <h3>Просмотр (таймкоды кликабельны)</h3>
+                        <div id="note-preview"></div>
                     </div>
                 </div>
 
-                <!-- СОХРАНЕННЫЕ ЗАМЕТКИ (СВОРАЧИВАЕМЫЕ) -->
-                <div id="saved-notes-container" style="display: none;">
-                    <details style=" border: 1px solid #232324; border-radius: 8px; padding: 15px; margin: 0 auto; max-width: 700px;">
-                        <summary style=" margin: 0 auto; max-width: 700px; cursor: pointer; font-size: 18px; font-weight: bold; color: #2c2b2c; outline: none; user-select: none;">
-                             Посмотреть сохраненные заметки
-                        </summary>
-                        <div style="margin-top: 15px;">
-                            <div id="saved-note-display" class="saved-note-display"></div>
-                        </div>
-                    </details>
+                <div class="panel" data-panel="parts" hidden>
+                    <div id="side-lessons" class="list"></div>
                 </div>
             </div>
-        </div>
-    </main>
 
-    <footer id="main-footer">
-        <div class="fut_lv1">
-            <div style="display: flex; align-items: center; justify-content: center;">
-                <h2 style="text-align: center; width: 100%;">Остались вопросы?</h2>
-            </div>
-            <div class="fut" style="font-size: 160%;">
-                <a href="https://t.me/hanbaly_bot"> Написать в Telegram-бот</a>
-                <a href="https://t.me/khanabilya_0">Перейти в Telegram-канал</a>
-            </div>
         </div>
-    </footer>
+    </section>
+</main>
 
-    <script src="app.js"></script>
+<footer class="foot" id="foot">
+    <span>Остались вопросы?</span>
+    <a href="https://t.me/hanbaly_bot">Telegram-бот</a>
+    <a href="https://t.me/khanabilya_0">Telegram-канал</a>
+</footer>
+
+<!-- Мини-плеер: виден на всех экранах, кроме страницы урока -->
+<div id="mini" hidden>
+    <div class="mini-bar"><i id="mini-bar"></i></div>
+    <div class="mini-body" id="mini-open" role="button" tabindex="0" aria-label="Открыть плеер">
+        <div class="cover cover--sm" id="mini-cover"><span id="mini-letter"></span></div>
+        <div class="mini-text">
+            <div class="mini-title" id="mini-title"></div>
+            <div class="muted" id="mini-book"></div>
+        </div>
+        <button id="mini-play" class="mini-btn" aria-label="Играть"><span class="i-play" data-icon="play"></span><span class="i-pause" data-icon="pause"></span></button>
+    </div>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+<audio id="audio" preload="metadata"></audio>
+<script src="app.js"></script>
 </body>
 </html>
