@@ -1,31 +1,22 @@
 'use strict';
 
-/* ==========================================================
-   Медиатека Khanbaliya
-   Маршруты (совместимы со старыми ссылками):
-     #                         — все книги
-     #book/N                   — части книги
-     #book/N/lesson/M          — плеер + заметки
-   ========================================================== */
-
 const API_URL = "https://tgbot-ljmn.onrender.com";
 const SKIP = 15;
 const SPEEDS = [0.75, 1, 1.25, 1.5, 1.75, 2];
 const SLEEP_STEPS = [0, 15, 30, 60, 'end'];
 const COVERS = [
-    ['#6B5B52', '#A89A8E'], // Основной коричневый
-    ['#8C7C70', '#C4B6AA'], // Светлый тауп
-    ['#574B42', '#8C7C70'], // Темный коричневый
-    ['#7A6B5E', '#B8A89B'], // Теплый серо-коричневый
-    ['#60534A', '#9E8F82'], // Землистый
-    ['#8E7B6D', '#D4C8BE'], // Светлый бежевый
+    ['#6B5B52', '#A89A8E'], 
+    ['#8C7C70', '#C4B6AA'], 
+    ['#574B42', '#8C7C70'], 
+    ['#7A6B5E', '#B8A89B'], 
+    ['#60534A', '#9E8F82'], 
+    ['#8E7B6D', '#D4C8BE'], 
 ];
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 const audio = $('#audio');
 
-/* ---------- Иконки ---------- */
 const svg = (inner, extra = '') =>
     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ${extra}>${inner}</svg>`;
 const ICONS = {
@@ -45,14 +36,11 @@ const ICONS = {
 };
 $$('[data-icon]').forEach(el => { el.innerHTML = ICONS[el.dataset.icon] || ''; });
 
-/* ---------- Утилиты ---------- */
 const esc = v => String(v ?? '')
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
-// Функция для удаления звездочек из названий
 const cleanText = str => String(str || '').replace(/\*\*/g, '');
-
 const pad = n => String(n).padStart(2, '0');
 const norm = s => String(s || '').toLowerCase().replace(/ё/g, 'е').trim();
 
@@ -61,7 +49,6 @@ function fmt(sec) {
     const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
     return h ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
 }
-// формат таймкода в заметках — минуты без часов (как в старых заметках)
 const fmtNote = sec => `${Math.floor(sec / 60)}:${pad(Math.floor(sec % 60))}`;
 function parseNoteTime(str) {
     const p = str.split(':').map(Number);
@@ -70,8 +57,8 @@ function parseNoteTime(str) {
 
 const store = {
     get(k, d = null) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch { return d; } },
-    set(k, v) { try { localStorage.setItem(k, v); } catch { /* приватный режим */ } },
-    del(k) { try { localStorage.removeItem(k); } catch { /* ignore */ } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch { } },
+    del(k) { try { localStorage.removeItem(k); } catch { } },
 };
 
 let toastTimer;
@@ -83,14 +70,13 @@ function toast(msg, ms = 3500) {
     toastTimer = setTimeout(() => t.classList.remove('show'), ms);
 }
 
-/* ---------- Состояние ---------- */
 const state = {
     books: [],
     view: 'home',
     route: { b: null, l: null },
-    current: null,              // {b, l} — загруженный в плеер урок
+    current: null,
     autoplayOnLoad: false,
-    ready: false,               // метаданные загружены, позиция восстановлена
+    ready: false,
     pendingSeek: null,
     speed: parseFloat(store.get('speed', '1')) || 1,
     autonext: store.get('autonext', '1') === '1',
@@ -102,7 +88,6 @@ const state = {
 const curLesson = () => state.current ? state.books[state.current.b].lessons[state.current.l] : null;
 const curBook = () => state.current ? state.books[state.current.b] : null;
 
-/* ---------- Загрузка данных ---------- */
 function resolveAudio(l) {
     let url = l.audio_url || l.audioUrl || l.url || l.audio || '';
     if (url && !/^https?:\/\//i.test(url)) url = `${API_URL}/${url.replace(/^\//, '')}`;
@@ -112,13 +97,10 @@ function resolveAudio(l) {
 function normalize(json) {
     return Object.entries(json.books || {}).map(([title, data], b) => ({
         index: b,
-        // Очищаем название книги от звездочек
         title: cleanText(title),
-        // Очищаем автора от звездочек
         author: cleanText(data.author),
         lessons: (data.lessons || []).slice().sort((x, y) => x.part - y.part).map((l, i) => ({
             id: l.id, part: l.part, 
-            // Очищаем название урока от звездочек
             title: cleanText(l.title), 
             index: i, audio: resolveAudio(l),
         })),
@@ -132,28 +114,47 @@ async function loadData() {
     $('#boot-text').textContent = 'Загружаем уроки…';
     ['home', 'book', 'lesson'].forEach(v => { $(`#view-${v}`).hidden = true; });
 
-    const ctrl = new AbortController();
-    // бесплатный хостинг «засыпает» — первый ответ может идти около минуты
-    const slow = setTimeout(() => { $('#boot-text').textContent = 'Сервер просыпается, это может занять до минуты…'; }, 4000);
-    const kill = setTimeout(() => ctrl.abort(), 70000);
-    try {
+    const fetchRender = async () => {
+        const ctrl = new AbortController();
+        const kill = setTimeout(() => ctrl.abort(), 6000); 
         const res = await fetch(`${API_URL}/api/lessons.json`, { signal: ctrl.signal, mode: 'cors' });
-        if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`);
-        state.books = normalize(await res.json());
+        clearTimeout(kill);
+        if (!res.ok) throw new Error('Render error');
+        return await res.json();
+    };
+
+    const fetchGitHub = async () => {
+        const res = await fetch("https://raw.githubusercontent.com/khsch5912-ai/audioTG/main/site_data.json");
+        if (!res.ok) throw new Error('GitHub error');
+        return await res.json();
+    };
+
+    try {
+        let json;
+        try {
+            console.log("Пытаемся загрузить с Render...");
+            json = await fetchRender();
+            console.log("Успешно загружено с Render!");
+        } catch (e) {
+            console.warn("Render не ответил, берем данные с GitHub...");
+            $('#boot-text').textContent = 'Загружаем данные с резервного хранилища…';
+            json = await fetchGitHub();
+            console.log("Успешно загружено с GitHub!");
+        }
+        
+        state.books = normalize(json);
     } catch (err) {
         $('#boot-spinner').hidden = true;
-        $('#boot-text').textContent = (err.name === 'AbortError' ? 'Сервер не ответил вовремя' : `Ошибка загрузки: ${err.message}`) + '. Попробуйте ещё раз или включите VPN.';
+        $('#boot-text').textContent = 'Не удалось загрузить данные.';
         $('#boot-retry').hidden = false;
         return;
-    } finally {
-        clearTimeout(slow); clearTimeout(kill);
     }
+    
     $('#boot').hidden = true;
     route();
 }
 $('#boot-retry').onclick = loadData;
 
-/* ---------- Прогресс (localStorage) ---------- */
 function lessonStatus(id) {
     const done = store.get('done_' + id) === '1';
     const pos = parseFloat(store.get('pos_' + id)) || 0;
@@ -172,7 +173,6 @@ const coverStyle = i => `--c1:${COVERS[i % COVERS.length][0]};--c2:${COVERS[i % 
 const coverIcon = '<img src="images/over_ear_headphones_falt_style.svg" alt="Аудио" class="cover-icon">';
 const lessonUrl = (b, l) => `#book/${b}/lesson/${l}`;
 
-/* ---------- Роутер ---------- */
 function route() {
     if (!state.books.length && !$('#boot').hidden) return;
     const parts = location.hash.replace('#', '').split('/').filter(Boolean);
@@ -215,12 +215,10 @@ function renderView() {
 }
 window.addEventListener('hashchange', route);
 
-// Нажатие на карточку урока / «Продолжить» сразу запускает воспроизведение
 document.addEventListener('click', e => {
     if (e.target.closest('[data-play]')) state.autoplayOnLoad = true;
 });
 
-/* ---------- Главная ---------- */
 function bookCard(book) {
     const p = bookProgress(book);
     return `<a class="book-card" href="#book/${book.index}">
@@ -271,7 +269,6 @@ $('#search').addEventListener('input', e => {
     renderHome();
 });
 
-/* ---------- Книга ---------- */
 const isActive = (b, l) => !!state.current && state.current.b === b && state.current.l === l;
 
 function lessonRow(book, lesson, active, showBook = false) {
@@ -322,7 +319,6 @@ function renderBook() {
 }
 $('#book-search').addEventListener('input', e => { state.lessonQuery = e.target.value; renderBook(); });
 
-/* ---------- Урок: отрисовка ---------- */
 function renderLesson() {
     const book = state.books[state.route.b];
     const lesson = book.lessons[state.route.l];
@@ -345,7 +341,6 @@ function renderLesson() {
     updateTime();
 }
 
-/* ---------- Плеер ---------- */
 function loadLesson(b, l) {
     savePos();
     flushNote();
@@ -354,12 +349,11 @@ function loadLesson(b, l) {
     state.ready = false;
     audio.pause();
     const st = lessonStatus(lesson.id);
-    // если урок дослушан — начинаем сначала, иначе продолжаем с сохранённого места
     state.pendingSeek = !st.done && st.pos > 2 ? st.pos : null;
     if (lesson.audio) {
         audio.src = lesson.audio;
         audio.load();
-        audio.defaultPlaybackRate = audio.playbackRate = state.speed; // load() сбрасывает скорость
+        audio.defaultPlaybackRate = audio.playbackRate = state.speed;
     } else {
         audio.removeAttribute('src');
         audio.load();
@@ -463,14 +457,12 @@ audio.addEventListener('error', () => {
     if (audio.getAttribute('src')) toast('Не удалось загрузить аудио. Попробуйте VPN или повторите позже.', 6000);
 });
 
-// Обновить списки (значки «прослушано», проценты) без полной перерисовки страницы
 function refreshLists() {
     if (state.view === 'book') renderBook();
     else if (state.view === 'lesson') $('#side-lessons').innerHTML = state.books[state.route.b].lessons
         .map(l => lessonRow(state.books[state.route.b], l, isActive(state.route.b, l.index))).join('');
 }
 
-/* ---------- Управление плеером ---------- */
 $('#btn-play').onclick = togglePlay;
 $('#mini-play').onclick = e => { e.stopPropagation(); togglePlay(); };
 $('#btn-back').onclick = () => seekBy(-SKIP);
@@ -518,7 +510,6 @@ function updateSleepLabel() {
 }
 $('#btn-sleep').onclick = () => setSleep(SLEEP_STEPS[(SLEEP_STEPS.indexOf(state.sleep.mode) + 1) % SLEEP_STEPS.length]);
 
-/* ---------- Мини-плеер ---------- */
 function updateMini() {
     const show = !!state.current && state.view !== 'lesson';
     $('#mini').hidden = !show;
@@ -534,7 +525,6 @@ const openMini = () => { if (state.current) location.hash = lessonUrl(state.curr
 $('#mini-open').addEventListener('click', openMini);
 $('#mini-open').addEventListener('keydown', e => { if ((e.key === 'Enter') && e.target === e.currentTarget) openMini(); });
 
-/* ---------- Системные кнопки (экран блокировки, наушники) ---------- */
 function updateMediaSession() {
     if (!('mediaSession' in navigator) || !curLesson()) return;
     try {
@@ -542,10 +532,10 @@ function updateMediaSession() {
             title: `Часть ${curLesson().part}: ${curLesson().title}`,
             artist: curBook().author, album: curBook().title,
         });
-    } catch { /* не поддерживается */ }
+    } catch { }
 }
 if ('mediaSession' in navigator) {
-    const set = (a, f) => { try { navigator.mediaSession.setActionHandler(a, f); } catch { /* ignore */ } };
+    const set = (a, f) => { try { navigator.mediaSession.setActionHandler(a, f); } catch { } };
     set('play', play);
     set('pause', () => audio.pause());
     set('seekbackward', () => seekBy(-SKIP));
@@ -555,7 +545,6 @@ if ('mediaSession' in navigator) {
     set('seekto', d => { if (d.seekTime != null) audio.currentTime = d.seekTime; });
 }
 
-/* ---------- Горячие клавиши ---------- */
 document.addEventListener('keydown', e => {
     if (!state.current || e.ctrlKey || e.metaKey || e.altKey) return;
     const tag = document.activeElement && document.activeElement.tagName;
@@ -566,7 +555,6 @@ document.addEventListener('keydown', e => {
 });
 window.addEventListener('pagehide', () => { savePos(); flushNote(); });
 
-/* ---------- Заметки ---------- */
 const noteEl = $('#note-text');
 let noteId = null, noteTimer = null;
 
@@ -652,7 +640,6 @@ $('#note-preview').addEventListener('click', e => {
     play();
 });
 
-/* ---------- Вкладки справа ---------- */
 $$('.tabs [role=tab]').forEach(tab => tab.addEventListener('click', () => {
     $$('.tabs [role=tab]').forEach(t => t.setAttribute('aria-selected', String(t === tab)));
     $$('.side .panel').forEach(p => { p.hidden = p.dataset.panel !== tab.dataset.tab; });
